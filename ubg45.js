@@ -50,6 +50,7 @@
     strategy: '<path d="M6 21v-2.5h12V21zM7.5 18.5l1-8h7l1 8zM6 10V4h2.5v2h2V4h3v2h2V4H18v6z" fill="#2b4dc2"/>',
     heart: '<path d="M12 21s-8-5.2-8-11a4.6 4.6 0 0 1 8-3 4.6 4.6 0 0 1 8 3c0 5.8-8 11-8 11z" fill="#ef4b6a"/>',
     clock: '<circle cx="12" cy="12" r="9" fill="none" stroke="#2b3245" stroke-width="2"/><path d="M12 7v5l3.5 2" fill="none" stroke="#2b3245" stroke-width="2" stroke-linecap="round"/>',
+    settings: '<path fill="#8a93a6" d="M10.5 2.8h3l.5 2.3 1.6.7 2-1.3 2.1 2.1-1.3 2 .7 1.6 2.3.5v3l-2.3.5-.7 1.6 1.3 2-2.1 2.1-2-1.3-1.6.7-.5 2.3h-3l-.5-2.3-1.6-.7-2 1.3-2.1-2.1 1.3-2-.7-1.6-2.3-.5v-3l2.3-.5.7-1.6-1.3-2 2.1-2.1 2 1.3 1.6-.7z"/><circle cx="12" cy="12" r="3.1" fill="#fff"/>',
     suggest: '<path d="M4 4h16v12H9l-5 4z" fill="#ffb02e"/><path d="M12 7.5v5M9.5 10h5" stroke="#fff" stroke-width="2" stroke-linecap="round"/>',
     generic: '<circle cx="12" cy="12" r="8" fill="#9aa3b5"/>'
   };
@@ -134,7 +135,7 @@
     var d = el('div', 'thumb-fallback', esc(label)); d.style.setProperty('--h', hue); d.dataset.fb = '1';
     img.replaceWith(d);
   }
-  document.addEventListener('error', function (e) { if (e.target && e.target.tagName === 'IMG') thumbFallback(e.target); }, true);
+  document.addEventListener('error', function (e) { if (e.target && e.target.tagName === 'IMG' && e.target.closest('.game-card')) thumbFallback(e.target); }, true);
 
   // Card interactions (delegated so clones work too)
   document.addEventListener('click', function (e) {
@@ -163,7 +164,7 @@
 
   /* ------------------------------------------------------------------ DOM refs */
   var sidebar = $('#sidebar'), main = $('#main'), content = $('.content');
-  var homeView = $('#homeView'), listView = $('#listView'), searchView = $('#searchView');
+  var homeView = $('#homeView'), listView = $('#listView'), searchView = $('#searchView'), settingsView = $('#settingsView');
   var searchBar = $('#searchBar'), clearBtn = $('#searchClear');
   var strip = $('#strip');
 
@@ -203,6 +204,7 @@
     f.appendChild(el('hr', 'nav-sep'));
     f.appendChild(navItem('nav-fav', 'heart', 'Favourites', '#/favourites', ''));
     var rc = navItem('nav-recent', 'clock', 'Recently played', '#/recent'); f.appendChild(rc);
+    f.appendChild(navItem('nav-settings', 'settings', 'Settings', '#/settings'));
     var sg = navItem('nav-suggest', 'suggest', 'Suggest a Game', C.suggestUrl);
     sg.target = '_blank'; sg.rel = 'noopener';
     sg.setAttribute('onclick', "openGame(this.href, 'Google Docs'); return false;");
@@ -303,8 +305,8 @@
     var q = searchBar.value.trim();
     var searching = !!q;
     body.classList.toggle('searching', searching);
-    homeView.hidden = listView.hidden = searchView.hidden = true;
-    $('#stripWrap').hidden = searching;
+    homeView.hidden = listView.hidden = searchView.hidden = settingsView.hidden = true;
+    $('#stripWrap').hidden = searching || route.name === 'settings';
     if (searching) { searchView.hidden = false; updateSearch(); markNav(null); return; }
     var g;
     switch (route.name) {
@@ -315,6 +317,8 @@
       case 'category':
         var d = catById[route.id]; if (!d) { location.hash = '#/'; return; }
         listPage(d.name + ' Games', d.games, '<strong>No games here yet</strong>'); break;
+      case 'settings':
+        settingsView.hidden = false; buildSettings(); break;
       case 'favourites':
         g = favs.map(function (t) { return byTitle[norm(t)]; }).filter(Boolean);
         listPage(TITLES.favourites, g, '<strong>No favourites yet</strong>Click the heart on any game (or press F while it is focused) to save it here.'); break;
@@ -324,7 +328,7 @@
       default:
         homeView.hidden = false; if (!homeView.firstChild || homeView._cols !== cols) { buildHome(); homeView._cols = cols; }
     }
-    if (route.name !== 'home') listView.hidden = false;
+    if (route.name !== 'home' && route.name !== 'settings') listView.hidden = false;
     markNav(route);
     buildStrip();
     syncFavs();
@@ -340,7 +344,7 @@
   function parseHash() {
     var h = (location.hash || '').replace(/^#\/?/, '');
     var p = h.split('/');
-    if (p[0] === 'new' || p[0] === 'popular' || p[0] === 'favourites' || p[0] === 'recent') route = { name: p[0], id: '' };
+    if (p[0] === 'new' || p[0] === 'popular' || p[0] === 'favourites' || p[0] === 'recent' || p[0] === 'settings') route = { name: p[0], id: '' };
     else if (p[0] === 'category' && p[1]) route = { name: 'category', id: decodeURIComponent(p[1]) };
     else route = { name: 'home', id: '' };
   }
@@ -349,6 +353,138 @@
     if (searchBar.value) { searchBar.value = ''; searchBar.dispatchEvent(new Event('input', { bubbles: true })); }
     closeDrawer(); render(); window.scrollTo(0, 0);
   });
+
+  /* ------------------------------------------------------------------ settings page (tab cloak + panic key) */
+  var settingsBuilt = false;
+  function buildSettings() {
+    var S = U.settings;
+    if (!S) { settingsView.innerHTML = '<div class="empty"><strong>Settings unavailable</strong>ubg45-settings.js did not load.</div>'; return; }
+    if (settingsBuilt) { refreshSettingsData(); return; }
+    settingsBuilt = true;
+
+    var cloakOpts = '<option value="default">Default (UBG45)</option>' +
+      Object.keys(S.CLOAKS).map(function (k) { return '<option value="' + k + '">' + esc(S.CLOAKS[k].label) + '</option>'; }).join('') +
+      '<option value="custom">Custom…</option>';
+
+    settingsView.innerHTML =
+      '<div class="view-head"><h1 id="settingsTitle">Settings</h1><span class="meta" id="setStatus" role="status" aria-live="polite"></span></div>' +
+      '<div class="set-grid">' +
+
+      '<section class="set-card" aria-labelledby="h-cloak"><h2 id="h-cloak">Tab Cloak</h2>' +
+        '<p class="desc">Disguises the tab title and icon, here and in every game tab. Default keeps UBG45’s own look.</p>' +
+        '<div class="set-row"><label for="cloakSel">Disguise as</label><select id="cloakSel">' + cloakOpts + '</select></div>' +
+        '<div id="customBox" class="set-sub" hidden>' +
+          '<div class="set-row"><label for="customTitle">Tab title</label><input id="customTitle" type="text" maxlength="80" placeholder="e.g. Home" autocomplete="off"></div>' +
+          '<div class="set-row"><label for="customIcon">Icon address</label><input id="customIcon" type="text" placeholder="https://example.com/favicon.ico" autocomplete="off" spellcheck="false"></div>' +
+        '</div>' +
+        '<div class="tabprev" aria-label="Tab preview"><img id="prevIcon" alt="" width="16" height="16"><span id="prevTitle"></span></div>' +
+      '</section>' +
+
+      '<section class="set-card" aria-labelledby="h-panic"><h2 id="h-panic">Panic Key</h2>' +
+        '<p class="desc">Press the key to instantly look like a harmless page and jump to your redirect. It never fires while you type in a text box, or when Ctrl, Alt or ⌘ are held. It works on UBG45 pages and in game tabs, but a browser does not pass keys pressed <em>inside</em> a game to the page, so click outside the game first.</p>' +
+        '<label class="set-check"><input id="panicOn" type="checkbox"> Enable panic key</label>' +
+        '<div class="set-row"><label for="panicKey">Key</label><input id="panicKey" class="keybox" type="text" readonly aria-describedby="keyHelp" autocomplete="off"><span class="keyhint" id="keyHelp">Click the box, then press the key you want.</span></div>' +
+        '<label class="set-check"><input id="panicRedirect" type="checkbox"> Redirect on panic</label>' +
+        '<div class="set-row"><label for="panicPick">Quick pick</label><select id="panicPick"><option value="">Choose a site…</option>' + S.REDIRECTS.map(function (r) { return '<option value="' + esc(r.url) + '">' + esc(r.label) + '</option>'; }).join('') + '</select></div>' +
+        '<div class="set-row"><label for="panicUrl">Redirect to</label><input id="panicUrl" type="text" autocomplete="off" spellcheck="false" placeholder="https://classroom.google.com"></div>' +
+        '<div class="set-row"><button class="btn-s" id="testUrl" type="button">Test redirect (new tab)</button></div>' +
+      '</section>' +
+
+      '<section class="set-card" aria-labelledby="h-data"><h2 id="h-data">Your data</h2>' +
+        '<p class="desc">Everything is stored only in this browser.</p>' +
+        '<div class="set-row"><span id="dataInfo"></span></div>' +
+        '<div class="set-row btns"><button class="btn-s" id="clearRecent" type="button">Clear recently played</button><button class="btn-s" id="clearFavs" type="button">Clear favourites</button></div>' +
+        '<div class="set-row"><button class="btn-s danger" id="resetSettings" type="button">Reset cloak &amp; panic settings</button></div>' +
+      '</section>' +
+      '</div>';
+
+    var $s = function (id) { return document.getElementById(id); };
+    var sel = $s('cloakSel'), ct = $s('customTitle'), ci = $s('customIcon'), box = $s('customBox');
+    var pOn = $s('panicOn'), pKey = $s('panicKey'), pRe = $s('panicRedirect'), pUrl = $s('panicUrl'), pPick = $s('panicPick'), stat = $s('setStatus');
+    var timer;
+    function say(msg, bad) { stat.textContent = msg; stat.className = 'meta' + (bad ? ' bad' : ' good'); clearTimeout(timer); timer = setTimeout(function () { stat.textContent = ''; }, 3500); }
+
+    function preview() {
+      var st = S.get(), l = S.look(st);
+      var img = $s('prevIcon'); img.hidden = false; img.onerror = function () { img.hidden = true; }; img.src = l.icon;
+      $s('prevTitle').textContent = l.title;
+    }
+    function load() {
+      var st = S.get();
+      sel.value = st.cloak; box.hidden = st.cloak !== 'custom';
+      ct.value = st.customTitle; ci.value = st.customIcon;
+      pOn.checked = st.panicEnabled; pRe.checked = st.panicRedirect;
+      pKey.value = S.keyLabel(st.panicKey); pUrl.value = st.panicUrl;
+      pKey.disabled = pRe.disabled = !st.panicEnabled; pUrl.disabled = pPick.disabled = $s('testUrl').disabled = !st.panicEnabled || !st.panicRedirect;
+      pPick.value = '';
+      preview(); refreshSettingsData();
+    }
+
+    sel.addEventListener('change', function () {
+      S.set({ cloak: sel.value }); box.hidden = sel.value !== 'custom'; preview();
+      say(sel.value === 'custom' && !S.get().customTitle && !S.get().customIcon ? 'Enter a title and/or icon below.' : 'Cloak saved.', false);
+    });
+    ct.addEventListener('input', function () { S.set({ customTitle: S.clampTitle(ct.value) }); preview(); });
+    ci.addEventListener('change', function () {
+      var v = ci.value.trim();
+      if (v && !S.normIcon(v)) { ci.value = S.get().customIcon; say('That icon address is not a valid http(s) link.', true); return; }
+      S.set({ customIcon: v ? S.normIcon(v) : '' }); ci.value = S.get().customIcon; preview(); say('Icon saved.', false);
+    });
+
+    pOn.addEventListener('change', function () { S.set({ panicEnabled: pOn.checked }); load(); say('Panic key ' + (pOn.checked ? 'on.' : 'off.'), false); });
+    pRe.addEventListener('change', function () { S.set({ panicRedirect: pRe.checked }); load(); say('Redirect ' + (pRe.checked ? 'on.' : 'off.'), false); });
+
+    // Pick the panic key by pressing it
+    function stopCapture() { U.capturingKey = false; pKey.classList.remove('capturing'); pKey.value = S.keyLabel(S.get().panicKey); }
+    pKey.addEventListener('focus', function () { U.capturingKey = true; pKey.classList.add('capturing'); pKey.value = 'Press a key…'; });
+    pKey.addEventListener('blur', stopCapture);
+    pKey.addEventListener('keydown', function (e) {
+      if (e.key === 'Tab') return;                                   // keep keyboard navigation working
+      e.preventDefault(); e.stopPropagation();
+      if (e.key === 'Shift' || e.key === 'Control' || e.key === 'Alt' || e.key === 'Meta') return;
+      if (e.key === 'Escape') { pKey.blur(); return; }
+      if (e.ctrlKey || e.altKey || e.metaKey) { say('Pick a key without Ctrl, Alt or ⌘.', true); return; }
+      if (S.isReserved(e.key)) { say('That key is reserved. Pick another.', true); return; }
+      S.set({ panicKey: S.normKey(e.key) }); pKey.blur(); say('Panic key set to ' + S.keyLabel(S.get().panicKey) + '.', false);
+    });
+
+    pUrl.addEventListener('change', function () {
+      var v = S.normUrl(pUrl.value);
+      if (!v) { pUrl.value = S.get().panicUrl; say('Enter a valid website address (http or https).', true); return; }
+      S.set({ panicUrl: v }); pUrl.value = v; say('Redirect saved.', false);
+    });
+    pPick.addEventListener('change', function () {
+      if (!pPick.value) return;
+      S.set({ panicUrl: pPick.value }); pUrl.value = S.get().panicUrl; pPick.value = ''; say('Redirect saved.', false);
+    });
+    $s('testUrl').addEventListener('click', function () {
+      var v = S.normUrl(pUrl.value) || S.get().panicUrl;
+      var w = window.open(v, '_blank', 'noopener'); if (!w) say('Pop-up blocked. Allow pop-ups to test.', true);
+    });
+
+    $s('clearRecent').addEventListener('click', function () { recents = []; store(RECENT_KEY, recents); buildStrip(); refreshSettingsData(); say('Recently played cleared.', false); });
+    $s('clearFavs').addEventListener('click', function () { favs = []; store(FAV_KEY, favs); syncFavs(); refreshSettingsData(); say('Favourites cleared.', false); });
+    var rs = $s('resetSettings'), rsT;
+    rs.addEventListener('click', function () {
+      if (!rs.dataset.armed) { rs.dataset.armed = '1'; rs.textContent = 'Click again to confirm'; rsT = setTimeout(function () { delete rs.dataset.armed; rs.innerHTML = 'Reset cloak &amp; panic settings'; }, 4000); return; }
+      clearTimeout(rsT); delete rs.dataset.armed; rs.innerHTML = 'Reset cloak &amp; panic settings';
+      S.reset(); load(); say('Settings reset.', false);
+    });
+    window.addEventListener('storage', function (e) { if (e.key === S.KEY && route.name === 'settings') load(); });
+    window.addEventListener('storage', function (e) {      // favourites / recents changed in another tab
+      if (e.key !== FAV_KEY && e.key !== RECENT_KEY) return;
+      favs = (store(FAV_KEY) || []).filter(function (t) { return byTitle[norm(t)]; });
+      recents = (store(RECENT_KEY) || []).filter(function (t) { return byTitle[norm(t)]; });
+      syncFavs(); refreshSettingsData();
+      if (route.name === 'favourites' || route.name === 'recent') render();
+    });
+
+    load();
+  }
+  function refreshSettingsData() {
+    var n = document.getElementById('dataInfo'); if (!n) return;
+    n.textContent = recents.length + (recents.length === 1 ? ' recently played game' : ' recently played games') + ' · ' + favs.length + (favs.length === 1 ? ' favourite' : ' favourites');
+  }
 
   /* ------------------------------------------------------------------ search (the legacy handler filters the original cards) */
   function updateSearch() {

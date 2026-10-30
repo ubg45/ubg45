@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="ubg45-settings.js"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Google Docs</title>
@@ -1241,7 +1242,7 @@ function openGame(url, title) {
     <head>
       <meta charset="UTF-8" />
       <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-      <title>Google Docs</title>
+      <title>Google Docs</title>${window.UBG45 && UBG45.gameHead ? UBG45.gameHead() : ''}
       <style>
         body { margin: 0; overflow: hidden; }
         iframe { width: 100vw; height: 100vh; border: none; }
@@ -1896,7 +1897,7 @@ if (query === "secret") {
       const newTab = window.open("about:blank", "_blank");
       newTab.document.write(`
         <html>
-          <head><title>Google Docs</title></head>
+          <head><title>Google Docs</title>${window.UBG45 && UBG45.gameHead ? UBG45.gameHead() : ''}</head>
           <body style="margin:0;overflow:hidden;">
             <iframe src="${randomLink}" frameborder="0" style="width:100vw;height:100vh;border:none;"></iframe>
           </body>

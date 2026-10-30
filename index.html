@@ -13,9 +13,9 @@
   <meta property="og:description" content="Play 350+ free unblocked games in your browser. No downloads.">
   <meta property="og:url" content="https://ubg45.github.io/ubg45/">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
-  <link rel="alternate icon" href="favicon.ico">
   <link rel="preconnect" href="https://ubg42.github.io">
   <link rel="stylesheet" href="ubg45.css">
+  <script src="ubg45-settings.js"></script>
 </head>
 <body>
 <a class="skip-link" href="#main">Skip to games</a>
@@ -64,6 +64,8 @@
         <div class="tile-grid" id="viewGrid"></div>
         <div class="empty" id="listEmpty" hidden></div>
       </section>
+
+      <section id="settingsView" hidden aria-labelledby="settingsTitle"></section>
 
       <section id="searchView" hidden>
         <div class="view-head"><h1 id="searchTitle"></h1><span class="meta" id="searchMeta" aria-live="polite"></span></div>
@@ -1519,6 +1521,7 @@ function openGame(url, title) {
       <meta charset="UTF-8" />
       <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
       <title>Google Docs</title>
+      ${window.UBG45 && UBG45.gameHead ? UBG45.gameHead() : ''}
       <style>
         body { margin: 0; overflow: hidden; }
         iframe { width: 100vw; height: 100vh; border: none; }
@@ -2290,12 +2293,13 @@ if (query === "granny") {
       if (!newTab) { window.location.href = randomLink; return; }
       newTab.document.write(`
         <html>
-          <head><title>Google Docs</title></head>
+          <head><title>Google Docs</title>${window.UBG45 && UBG45.gameHead ? UBG45.gameHead() : ''}</head>
           <body style="margin:0;overflow:hidden;">
             <iframe src="${randomLink}" frameborder="0" style="width:100vw;height:100vh;border:none;"></iframe>
           </body>
         </html>
       `);
+      newTab.document.close();
     }
   </script>
   <script>

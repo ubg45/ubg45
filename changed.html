@@ -2,6 +2,7 @@
 <html lang="en">
 <!-- For anyone looking at the code the new website is ubg42.github.io/changes-->
 <head>
+<script src="ubg45-settings.js"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Google Docs</title>
@@ -142,7 +143,7 @@ function openGame(url, title) {
     <head>
       <meta charset="UTF-8" />
       <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-      <title>Google Docs</title>
+      <title>Google Docs</title>${window.UBG45 && UBG45.gameHead ? UBG45.gameHead() : ''}
       <style>
         body { margin: 0; overflow: hidden; }
         iframe { width: 100vw; height: 100vh; border: none; }
