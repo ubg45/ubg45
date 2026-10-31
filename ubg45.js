@@ -87,7 +87,8 @@
   });
   var activeCats = catDefs.filter(function (d) { return d.games.length >= C.MIN_CATEGORY_SIZE; });
 
-  catalog.slice(-C.NEW_COUNT).forEach(function (g) { g.isNew = true; });
+  var newGames = pick(C.newTitles);                       // explicit list from the config; empty = no "New" anywhere
+  newGames.forEach(function (g) { g.isNew = true; });
   var hotSet = {}, topSet = {};
   (C.badges.hot || []).forEach(function (t) { hotSet[norm(t)] = 1; });
   (C.badges.top || []).forEach(function (t) { topSet[norm(t)] = 1; });
@@ -186,7 +187,7 @@
   function buildSidebar() {
     var f = document.createDocumentFragment();
     f.appendChild(navItem('nav-home', 'home', 'Home', '#/'));
-    f.appendChild(navItem('nav-new', 'new', 'New', '#/new'));
+    if (newGames.length) f.appendChild(navItem('nav-new', 'new', 'New', '#/new'));
     f.appendChild(navItem('nav-popular', 'popular', 'Popular', '#/popular'));
     var r = navItem('nav-random', 'random', 'Random', '#random');
     r.addEventListener('click', function (e) { e.preventDefault(); randomGame(); });
@@ -264,8 +265,8 @@
     homeView.innerHTML = '';
     homeView.appendChild(buildCollage());
     var trending = pick(C.trending).slice(0, C.ROW_MAX);
-    var newest = catalog.slice(-C.NEW_COUNT).reverse();
-    var secs = [rowSection('Trending', trending, '#/popular'), rowSection('New Games', newest, '#/new')];
+    var secs = [rowSection('Trending', trending, '#/popular')];
+    if (newGames.length) secs.push(rowSection('New Games', newGames, '#/new'));
     activeCats.filter(function (d) { return !d.fallback; }).slice(0, C.CATEGORY_ROWS).forEach(function (d) {
       secs.push(rowSection(d.name, d.games.slice(0, C.ROW_MAX), '#/category/' + d.id));
     });
@@ -311,7 +312,7 @@
     var g;
     switch (route.name) {
       case 'new':
-        g = catalog.slice(-C.NEW_PAGE_COUNT).reverse(); listPage(TITLES.new, g, '', g.length + ' latest additions'); break;
+        g = newGames; listPage(TITLES.new, g, '<strong>No new games right now</strong>Check back soon.'); break;
       case 'popular':
         g = pick((C.trending || []).concat(C.popularMore || [])); listPage(TITLES.popular, g, '', g.length + ' games'); break;
       case 'category':

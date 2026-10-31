@@ -1448,54 +1448,7 @@
 		<img src="https://ubg42.github.io/img/ExtremeCarDrift.jpg" alt="Extreme Car Drift" loading="lazy" decoding="async">
 		<h3>Extreme Car Drift</h3>
 	</div>
-		<div class="game-card" onclick="openGame('https://ubg42.github.io/TsunamiBrainrotsOnline/', 'Google Docs')">
-		<img src="https://ubg42.github.io/img/TsunamiBrainrotsOnline.png" alt="Tsunami Brainrots Online" loading="lazy" decoding="async">
-		<h3>Tsunami Brainrots Online</h3>
-	</div>
-		<div class="game-card" onclick="openGame('https://ubg42.github.io/Tank-Stars/', 'Google Docs')">
-		<img src="https://ubg42.github.io/img/TankStars.jpg" alt="Tank Stars" loading="lazy" decoding="async">
-		<h3>Tank Stars</h3>
-	</div>
-		<div class="game-card" onclick="openGame('https://ubg42.github.io/file/Peggle.html', 'Google Docs')">
-		<img src="https://ubg42.github.io/img/Peggle.jpg" alt="Peggle" loading="lazy" decoding="async">
-		<h3>Peggle</h3>
-	</div>
-		<div class="game-card" onclick="openGame('https://ubg42.github.io/DuckLife8/', 'Google Docs')">
-		<img src="https://ubg42.github.io/img/DuckLife8.jpg" alt="Duck Life 8" loading="lazy" decoding="async">
-		<h3>Duck Life 8</h3>
-	</div>
-		<div class="game-card" onclick="openGame('https://ubg42.github.io/Knockout4/', 'Google Docs')">
-		<img src="https://ubg42.github.io/img/Knockout.jpg" alt="Knockout" loading="lazy" decoding="async">
-		<h3>Knockout </h3>
-	</div>
-		<div class="game-card" onclick="openGame('https://ubg42.github.io/link', 'Google Docs')">
-		<img src="https://ubg42.github.io/img/BusSim3D.jpg" alt="Bus Simulator 3D" loading="lazy" decoding="async">
-		<h3>Bus Simulator 3D</h3>
-	</div>
-	<div class="game-card" onclick="openGame('https://ubg42.github.io/file/TheFraustrationGame.html', 'Google Docs')">
-		<img src="https://ubg42.github.io/file/TheFraustrationGame.jpg" alt="The Fraustration Game" loading="lazy" decoding="async">
-		<h3>The Fraustration Game</h3>
-	</div>	
-		<div class="game-card" onclick="openGame('https://ubg42.github.io/t3/', 'Google Docs')">
-		<img src="https://ubg42.github.io/img/t3.jpg" alt="T3" loading="lazy" decoding="async">
-		<h3>T<sup>3</sup></h3>
-	</div>	
-		<div class="game-card" onclick="openGame('https://ubg42.github.io/StardewValley/', 'Google Docs')">
-		<img src="https://ubg42.github.io/img/StardewValley.jpg" alt="Stardew Valley" loading="lazy" decoding="async">
-		<h3>Stardew Valley | Web Port</h3>
-	</div>	
-	    <div class="game-card" onclick="openGame('https://ubg42.github.io/BadPiggies/', 'Google Docs')">
-		<img src="https://ubg42.github.io/img/BadPiggies.jpg" alt="Bad Piggies" loading="lazy" decoding="async">
-		<h3>Bad Piggies</h3>
-	</div>
-		<div class="game-card" onclick="openGame('https://ubg42.github.io/link3.html', 'Google Docs')">
-		<img src="https://ubg42.github.io/img/SurviveLavaForBrainrots.jpeg" alt="Survive Lava For Brainrots" loading="lazy" decoding="async">
-		<h3>Survive Lava For Brainrots</h3>
-	</div>
-		<div class="game-card" onclick="openGame('https://ubg42.github.io/StealAnEgg/', 'Google Docs')">
-		<img src="https://ubg42.github.io/img/StealAnEgg.jpg" alt="Steal an Egg" loading="lazy" decoding="async">
-		<h3>Steal an Egg</h3>
-	</div>	
+			
 	</div>
         <div class="empty" id="searchEmpty" hidden></div>
       </section>
@@ -1542,275 +1495,8 @@ const body = document.body;
 
 const normalize = (str) => str.trim().toLowerCase().replace(/\s+/g, ' ');
 
-const triggers = {
-    "cj": [
-      "the impossible quiz",
-      "subway surfers",
-      "stack",
-      "run 3",
-      "watermelon drop",
-	  "project sekai - プロジェクトセカイ"
-    ],
-    "jm": [
-      "cluster rush",
-      "level devil - not a troll game",
-      "moto road rash 3d",
-      "slope",
-      "traffic run 3d",
-      "stack",
-      "ragdoll archers",
-      "shell jump",
-      "drift boss",
-      "the impossible quiz",
-      "house of harzards",
-      "stickman fight ragdoll",
-      "stick merge",
-      "deal or no deal",
-      "dreadhead parkour",
-      "cookie clicker",
-	  "slope with cheats",
-	  "stick fighter",
-	  "gobble",
-	  "timer shooter 3 swat",
-	  "grow your garden"	
-    ],
-    "jk": [
-      "cluster rush",
-      "level devil - not a troll game",
-      "moto road rash 3d",
-      "slope",
-      "traffic run 3d",
-      "stack",
-      "ragdoll archers",
-      "shell jump",
-      "drift boss",
-      "the impossible quiz",
-      "house of harzards",
-      "stickman fight ragdoll",
-      "stick merge",
-      "deal or no deal",
-      "dreadhead parkour",
-      "cookie clicker",
-	  "slope with cheats",
-	  "stick fighter",
-	  "gobble",
-	  "timer shooter 3 swat",
-	  "grow your garden"	
-    ],
-    "caylen and jaxton": [
-      "eggy car",
-      "retro bowl",
-      "idle mining empire"
-    ],
-	  "jaxton and caylen": [
-      "eggy car",
-      "retro bowl",
-      "idle mining empire"
-    ],
-    "hayden": [
-      "geometry dash",
-      "red ball 4"
-    ],
-    "jamessaysopensesame": [
-      "cookie clicker"
-    ],
-	 "campbell": [
-	   "subway surfers",
-		 "stick merge",
-	     "learn to fly",
-	     "learn to fly 2",
-	     "learn to fly 3",
-	     "learn to fly idle",
-		 "idle mining empire",
-		 "boost roulette"
-	],
-		 "corey": [
-	   "subway surfers",
-		 "stick merge",
-	     "learn to fly",
-	     "learn to fly 2",
-	     "learn to fly 3",
-	     "learn to fly idle",
-		 "idle mining empire",
-		 "boost roulette",
-		 "basket random"
-	],
-	   "the egg needs a seatbelt": [
-	   "eggy car"
-	],
-		"the egg needs a seatbelt!": [
-	   "eggy car"
-	],
-		 "creator": [
-	     "slope",
-		 "tomb of the mask",
-	     "moto x3m",
-	     "moto x3m spooky land",
-	     "moto x3m winter",
-	     "eggy car",
-		 "appel",
-		 "cluster rush",
-		 "dreadhead parkour",
-		 "run 3",
-		 "red ball 4",
-		 "drive mad",
-		 "stick fighter",
-		 "flip bros",
-		 "bacon may die",
-		 "gold miner",
-		 "gold miner: special edition",
-		 "soflowheelielife",
-		 "escape road 2",  
-		 "escape road", 
-		 "dune",
-		 "survival race"	 
-	],
-    	"bails": [
-	     "slope",
-		 "fluid simulation",
-	     "moto x3m",
-	     "moto x3m spooky land",
-	     "moto x3m winter",
-         "moto x3m pool party",
-         "moto x3m 2",
-         "moto x3m 3",
-	     "cars thief",
-		 "red ball 4",
-		 "highway traffic 3d",
-		 "dreadhead parkour",
-		 "drift hunters",
-         "worlds hardest game",
-		 "worlds hardest game 2",
-		 "worlds hardest game 3",
-		 "worlds hardest game 4",
-         "drive mad",
-         "top speed racing 3d",
-         "deal or no deal",
-         "slope with cheats",
-		 "slow roads",
-		 "escape road",
-		 "escape road 2",
-		 "level 67",
-		 "fly the plane",
-		 "wacky flip",
-		 "rooftop run",							
-	],
-	    "callum": [
-	     "ovo",
-		 "subway surfers",
-	     "gunspin"
-	],
-		"caleb": [
-	     "jacksmith"
-	],
-		"will": [
-	     "slope",
-		 "plants vs zombies",
-		 "eggy car"
-	],
-		 "ethan": [
-	     "water polo ragdoll",
-		 "4th and goal 2022"
 
-	],
-			 "millie": [
-	     "watermelon drop"
-	],
-			 "rocco": [
-         "papas pizzeria",
-         "papas bakeria",
-		 "papas pastaria",
-		 "plants vs zombies",
-		 "fifa fc 24",
-		 "clash royale"
-	],
-		 "asher": [
-         "gunspin",
-         "clash royale"
-	],
-		 "dustin": [
-         "super mx - the champion"
-	],
-		 "detrey": [
-         "eggy car",
-        "drive mad",
-        "traffic run 3d",
-        "rocket soccer derby",
-        "drift hunters",
-        "crazy cars",
-        "top speed racing 3d",
-        "monster tracks",
-        "parking fury",
-        "demolition derby crash racing",
-        "parking fury 3d beach city",
-        "ultimate car driving",
-        "blumgi rocket",
-        "polytrack",
-        "highway traffic 3d",
-        "survival karts",
-        "battle wheels",
-        "burnout extreme drift 2",
-        "burnout drift: seaport max"
-	],
-				 "chloe": [
-	     "boost roulette"
-	],
-		"tayton": [
-	     "bloons tower defense"
-	],
-			"mitchell": [
-         "retro bowl",
-         "crossy road",
-	],
-			"mitch": [
-         "retro bowl",
-         "crossy road",
-	],
-			"beth": [
-        "stickman bike",
-        "moto road rash 3d",
-        "slope",
-        "tunnel rush",
-        "8 ball pool",
-        "flappy bird",
-        "snow rider 3d",
-        "subway surfers",
-        "paper.io 2",
-        "stickman hook",
-        "ovo",
-        "run 3",
-        "tomb of the mask",
-		"stack"
-	],
-			    "liam": [
-        "geometry dash",
-		"geometry dash lite"
-	],
-				"Liam": [
-        "geometry dash",
-		"geometry dash lite"
-	],
-  };
 
-const backgrounds = {
-  default: 'none',
-  bails: 'url("yellow.jpg")',
-  jm: 'url("e.png")',
-  jk: 'url("e.png")',
-  creator: 'url("red.png")',
-  will: 'url("ditto.png")',
-  cj: 'url("cj.png")',
- millie: 'url(Bakugo.jpg)',
- rocco: 'url(mega-night.jpg)',
- dawson: 'url(Bing-Bong.jpg)',
- asher: 'url(Fire-Spirit.png)',
- beth: 'url(jellyfish.png)',
- liam: 'url(sigmamale.png)',
- Liam: 'url(sigmamale.png)',
-};
-
-// Set default background
-body.style.backgroundImage = backgrounds.default;
 
 searchBar.addEventListener("input", function () {
   const query = normalize(searchBar.value);
@@ -1821,11 +1507,7 @@ searchBar.addEventListener("input", function () {
 gameCards.forEach((card) => {
   const title = normalize(card.querySelector("h3").textContent);
 
-  if (triggers[query]) {
-    card.style.display = triggers[query].includes(title) ? "" : "none";
-  } else {
-    card.style.display = title.includes(query) ? "" : "none";
-  }
+  card.style.display = title.includes(query) ? "" : "none";
 });
 
 const grid = document.getElementById("gameGrid");
@@ -1903,9 +1585,6 @@ if (query === "granny") {
     grid.appendChild(card);
   }
 }
-
-  // Change background based on trigger
-  body.style.backgroundImage = backgrounds[query] || backgrounds.default;
 
   // Show/hide footer
   const footer = document.querySelector("footer");
@@ -2116,7 +1795,6 @@ if (query === "granny") {
 	  "https://ubg42.github.io/file/Duck_Life_2.html",
 	  "https://ubg42.github.io/file/Duck_Life_3.html",
 	  "https://ubg42.github.io/file/Duck_Life_4.html",
-	  "https://ubg42.github.io/DuckLife8/",
 	  "https://tylerpalko.github.io/gamehub/basketrandom/",
 	  "https://23azostore.github.io/s2/4th-and-goal-2022/",
 	  "https://ubg42.github.io/html5/kartbros.html",
@@ -2273,18 +1951,6 @@ if (query === "granny") {
 	  "https://ubg42.github.io/WrestleBros/",
 	  "https://ubg42.github.io/WackyFlip/",
 	  "https://ubg42.github.io/ExtremeCarDrift/",
-	  "https://ubg42.github.io/TsunamiBrainrotsOnline/",
-	  "https://ubg42.github.io/Tank-Stars/",
-	  "https://ubg42.github.io/file/Peggle.html",
-	  "https://ubg42.github.io/DuckLife8/",
-	  "https://ubg42.github.io/Knockout4/",
-	  "https://ubg42.github.io/link",
-	  "https://ubg42.github.io/file/TheFraustrationGame.html",
-	  "https://ubg42.github.io/t3/",
-	  "https://ubg42.github.io/StardewValley/",
-	  "https://ubg42.github.io/BadPiggies/",
-	  "https://ubg42.github.io/BrainrotsSurviveOnline/",
-	  "https://ubg42.github.io/StealAnEgg/"
     ];
 
     function openRandom() {

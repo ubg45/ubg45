@@ -1,16 +1,17 @@
 /* UBG45 configuration - the only file you need to edit to curate the homepage.
  *
  * The game catalog itself lives in index.html (the <template id="catalog"> block).
- * To add a game, append one card to the END of that block: the newest cards at the
- * end are automatically shown in "New Games". Titles below must match a catalog
+ * To add a game, append one card to the END of that block. To feature it under "New Games",
+ * also add its title to newTitles below. Titles below must match a catalog
  * title (case-insensitive); titles that don't exist are skipped safely.
  */
 (function (root) {
   var U = (root.UBG45 = root.UBG45 || {});
 
   U.config = {
-    NEW_COUNT: 12,        // newest N catalog cards are flagged "New" (row + badge)
-    NEW_PAGE_COUNT: 36,   // "New" page lists this many recent additions
+    // Games to flag as "New". Titles must match the catalog; leave empty and the New row, New page,
+    // sidebar entry and badges all stay hidden. Example: newTitles: ['Some New Game'],
+    newTitles: [],
     RECENT_MAX: 16,       // recently played kept per browser
     ROW_MAX: 24,          // tiles per horizontal row on the homepage
     CATEGORY_ROWS: 5,     // category rows shown under New Games
@@ -25,7 +26,7 @@
       'Among Us', 'Eggy Car', 'Block Blast', 'Retro Bowl', '1v1.lol', 'Tunnel Rush', 'Run 3', 'Tiny Fishing',
       'Steal a Brainrot', 'Basket Random', 'Stickman Hook', 'Temple Run 2', 'Crossy Road', 'Drive Mad',
       'Snow Rider 3D', 'Paper.io 2', 'OvO', 'Eaglercraft 1.12.2', 'Getting Over It', 'Monkey Mart', 'Fruit Ninja',
-      'Steal an Egg', 'Survive Lava For Brainrots', 'Bloons Tower Defense', 'Penalty Shooters 2', 'Stack',
+      'Bloons Tower Defense', 'Penalty Shooters 2', 'Stack',
       'Red Ball 4', 'Wordle Unlimited', '2048', 'Raft Wars', 'Drift Boss', 'Soccer Legends 2021', 'Flappy Bird'],
 
     // Hand-picked favourites (not live player statistics). Trending row = first ROW_MAX.
@@ -39,7 +40,7 @@
       'Red Ball 4', 'Level Devil - NOT A Troll Game', 'Bob The Robber', 'Duck Life 4', "Papa's Pizzeria", 'Super Mario 64',
       'Little Alchemy 2', 'Sandboxels', 'Kick the Buddy', "Baldi's Basics", 'Backrooms', 'Rooftop Snipers 2', 'Pixel Shooter',
       'Fortzone Battle Royale', 'Dino Game', 'Google Snake', 'Idle Mining Empire', 'Bottle Flip 3D', 'Escape Road', 'Dunk Shot',
-      'Basketball Legends', 'Dadish', 'Stardew Valley | Web Port', 'Bad Piggies', 'Peggle', 'Geometry Dash Lite'],
+      'Basketball Legends', 'Dadish', 'Geometry Dash Lite'],
 
     // Category rules are matched against game titles (a game can belong to several).
     // re = pattern, not = exact titles to exclude, add = exact titles to include.
