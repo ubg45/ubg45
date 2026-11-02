@@ -1,0 +1,24 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "ubg45": {
+      "days": {
+        ".read": true,
+        "$day": {
+          "$game": {
+            "o": {
+              ".write": "newData.isNumber() && newData.val() - (data.exists() ? data.val() : 0) <= 1 && newData.val() >= (data.exists() ? data.val() : 0)",
+              ".validate": "newData.isNumber()"
+            },
+            "s": {
+              ".write": "newData.isNumber() && newData.val() - (data.exists() ? data.val() : 0) <= 60 && newData.val() >= (data.exists() ? data.val() : 0)",
+              ".validate": "newData.isNumber()"
+            },
+            "$other": { ".validate": false }
+          }
+        }
+      }
+    }
+  }
+}

@@ -188,16 +188,39 @@ body.searching main .view-head { background: rgba(255,255,255,.92); display: inl
 .game-card:hover h3, .game-card:focus-visible h3 { opacity: 1; }
 .game-card:focus-visible { outline: 3px solid var(--blue); outline-offset: 1px; border-radius: var(--r); }
 .game-card.mini { flex: none; width: 44px; height: 44px; border-radius: 8px; }
-.game-card.mini h3, .game-card.mini .badge, .game-card.mini .fav-btn { display: none; }
+.game-card.mini h3, .game-card.mini .badges, .game-card.mini .fav-btn { display: none; }
 .game-card.mini:hover { transform: translateY(-1px); }
 
+.badges { position: absolute; top: 6px; left: 6px; z-index: 2; display: flex; flex-direction: column; align-items: flex-start; gap: 4px; pointer-events: none; }
 .badge {
-  position: absolute; top: 0; left: 0; z-index: 2; padding: 3px 9px 4px; border-radius: 0 0 var(--r) 0;
-  font-size: 12px; font-weight: 800; line-height: 1.1; color: #fff; pointer-events: none;
+  position: relative; display: inline-flex; align-items: center; gap: 3px; padding: 3px 8px 3px 5px; overflow: hidden;
+  border-radius: 999px; font-size: 10px; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; line-height: 1.15; color: #fff;
+  text-shadow: 0 1px 1px rgba(0,0,0,.25); box-shadow: 0 2px 7px rgba(0,0,0,.30), inset 0 0 0 1px rgba(255,255,255,.38);
 }
-.badge.new { background: var(--new); }
-.badge.hot { background: var(--hot); }
-.badge.top { background: var(--top); color: #231a00; }
+.badge svg { width: 11px; height: 11px; flex: none; filter: drop-shadow(0 1px 1px rgba(0,0,0,.25)); }
+.badge.trending { background: linear-gradient(135deg, #ff2d55 0%, #ff7a1a 62%, #ffc02e 100%); }
+.badge.new { background: linear-gradient(135deg, #00b894 0%, #1fa2ff 100%); }
+.badge::after {                                    /* a soft highlight that sweeps across now and then */
+  content: ''; position: absolute; inset: 0; transform: translateX(-130%);
+  background: linear-gradient(105deg, transparent 35%, rgba(255,255,255,.6) 50%, transparent 65%);
+  animation: badge-shine 5.5s ease-in-out infinite;
+}
+.badge.new::after { animation-delay: 1.6s; }
+.badge.trending svg { transform-origin: 50% 90%; animation: flame 1.5s ease-in-out infinite; }
+.badge.new svg { animation: twinkle 2.4s ease-in-out infinite; }
+@keyframes badge-shine { 0%, 62% { transform: translateX(-130%); } 100% { transform: translateX(130%); } }
+@keyframes flame { 0%, 100% { transform: scale(1) rotate(-3deg); } 50% { transform: scale(1.16) rotate(4deg); } }
+@keyframes twinkle { 0%, 100% { transform: scale(1) rotate(0); opacity: 1; } 50% { transform: scale(1.14) rotate(12deg); opacity: .85; } }
+.game-card.lg .badge { font-size: 12px; padding: 4px 10px 4px 7px; gap: 4px; }
+.game-card.lg .badge svg { width: 13px; height: 13px; }
+.game-card.lg .badges { top: 10px; left: 10px; gap: 5px; }
+@media (prefers-reduced-motion: reduce) { .badge::after, .badge svg { animation: none !important; } }
+
+/* section heading icons */
+.h-ico { display: inline-grid; place-items: center; width: 24px; height: 24px; margin-right: 8px; vertical-align: -5px; border-radius: 8px; color: #fff; }
+.h-ico svg { width: 15px; height: 15px; }
+.h-ico.trending { background: linear-gradient(135deg, #ff2d55, #ff7a1a 65%, #ffc02e); box-shadow: 0 2px 8px rgba(255,90,40,.35); }
+.h-ico.new { background: linear-gradient(135deg, #00b894, #1fa2ff); box-shadow: 0 2px 8px rgba(31,162,255,.35); }
 
 .fav-btn {
   position: absolute; top: 6px; right: 6px; z-index: 3; width: 28px; height: 28px; padding: 0; border: 0; border-radius: 50%;

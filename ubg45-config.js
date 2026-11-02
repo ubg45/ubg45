@@ -9,17 +9,27 @@
   var U = (root.UBG45 = root.UBG45 || {});
 
   U.config = {
-    // Games to flag as "New". Titles must match the catalog; leave empty and the New row, New page,
-    // sidebar entry and badges all stay hidden. Example: newTitles: ['Some New Game'],
+    // NEW: automatic. A game is "New" for NEW_DAYS days after the date stamped in ubg45-added.js, which is filled in
+    // by tools/stamp-added.py (run automatically by .github/workflows/stamp-new-games.yml on every push).
+    // newTitles can force extra games in by hand; leave it empty normally.
+    NEW_DAYS: 14,
     newTitles: [],
+
+    // TRENDING: live, from play statistics in your Firebase Realtime Database (see STATS-SETUP.md).
+    // Leave databaseUrl empty and nothing is recorded; the homepage row is then labelled "Popular" (hand-picked below).
+    stats: {
+      databaseUrl: '',      // e.g. 'https://your-project-default-rtdb.firebaseio.com'
+      root: 'ubg45',
+      TRENDING_DAYS: 7,     // look at the last 7 days
+      TRENDING_MAX: 12,     // at most this many games trend at once
+      MIN_OPENS: 3,         // trending needs at least this many opens ...
+      MIN_MINUTES: 15,      // ... or at least this many minutes played (and always 2+ opens)
+      MIN_LIVE: 3           // show the live Trending row once this many games qualify
+    },
     RECENT_MAX: 16,       // recently played kept per browser
     ROW_MAX: 24,          // tiles per horizontal row on the homepage
     CATEGORY_ROWS: 5,     // category rows shown under New Games
     MIN_CATEGORY_SIZE: 3, // categories with fewer games are hidden
-
-    // Badges only appear for titles listed here, so they always reflect real data.
-    // ("New" is automatic.) Example: hot: ['Slope'], top: ['Moto X3M']
-    badges: { hot: [], top: [] },
 
     // Collage on the homepage. The first two become the large tiles.
     featured: ['Level 67', 'Moto X3M', 'Slope', 'Geometry Dash', 'Subway Surfers', 'Drift Hunters', 'Cookie Clicker',
@@ -29,7 +39,7 @@
       'Bloons Tower Defense', 'Penalty Shooters 2', 'Stack',
       'Red Ball 4', 'Wordle Unlimited', '2048', 'Raft Wars', 'Drift Boss', 'Soccer Legends 2021', 'Flappy Bird'],
 
-    // Hand-picked favourites (not live player statistics). Trending row = first ROW_MAX.
+    // Hand-picked favourites (not live statistics). Used for the "Popular" row until real Trending data exists.
     trending: ['Slope', 'Moto X3M', 'Subway Surfers', 'Geometry Dash', 'Drift Hunters', 'Cookie Clicker', 'Level 67',
       'Among Us', 'Block Blast', 'Eggy Car', 'Tunnel Rush', 'Retro Bowl', '1v1.lol', 'Run 3', 'Tiny Fishing',
       'Steal a Brainrot', 'Basket Random', 'Stickman Hook', 'Temple Run 2', 'Crossy Road', 'Drive Mad',

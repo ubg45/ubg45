@@ -87,11 +87,16 @@
   });
   var activeCats = catDefs.filter(function (d) { return d.games.length >= C.MIN_CATEGORY_SIZE; });
 
-  var newGames = pick(C.newTitles);                       // explicit list from the config; empty = no "New" anywhere
-  newGames.forEach(function (g) { g.isNew = true; });
-  var hotSet = {}, topSet = {};
-  (C.badges.hot || []).forEach(function (t) { hotSet[norm(t)] = 1; });
-  (C.badges.top || []).forEach(function (t) { topSet[norm(t)] = 1; });
+  // "New" is automatic: a game is new for NEW_DAYS days after the date stamped in ubg45-added.js (newest first).
+  // C.newTitles can still force extra games in. No new games = no New row, page, sidebar entry or badges.
+  var ST = U.stats || { isNew: function () { return false; }, addedOn: function () { return null; }, slug: norm, enabled: false, trending: function () { return []; }, get: function () {}, begin: function () {} };
+  pick(C.newTitles).forEach(function (g) { g.isNew = true; });
+  catalog.forEach(function (g) { if (ST.isNew(g.title)) g.isNew = true; });
+  var newGames = catalog.filter(function (g) { return g.isNew; }).sort(function (a, b) {
+    var da = ST.addedOn(a.title) || '', db = ST.addedOn(b.title) || '';
+    return da < db ? 1 : da > db ? -1 : b.index - a.index;
+  });
+  var liveTrending = [], trendingIds = {};              // filled from the database; empty until real data arrives
 
   /* ------------------------------------------------------------------ favourites & recents */
   var FAV_KEY = 'ubg45.favs', RECENT_KEY = 'ubg45.recent';
@@ -122,8 +127,6 @@
     c.setAttribute('role', 'link');
     c.setAttribute('tabindex', '0');
     c.setAttribute('aria-label', 'Play ' + g.title);
-    var kind = hotSet[norm(g.title)] ? 'hot' : topSet[norm(g.title)] ? 'top' : g.isNew ? 'new' : '';
-    if (kind) c.insertBefore(el('span', 'badge ' + kind, kind === 'hot' ? 'Hot' : kind === 'top' ? 'Top Rated' : 'New'), c.firstChild);
     c.appendChild(el('button', 'fav-btn', '<svg viewBox="0 0 24 24"><path d="M12 21s-8-5.2-8-11a4.6 4.6 0 0 1 8-3 4.6 4.6 0 0 1 8 3c0 5.8-8 11-8 11z"/></svg>')).setAttribute('type', 'button');
     $('.fav-btn', c).setAttribute('tabindex', '-1');
   });
@@ -137,6 +140,27 @@
     img.replaceWith(d);
   }
   document.addEventListener('error', function (e) { if (e.target && e.target.tagName === 'IMG' && e.target.closest('.game-card')) thumbFallback(e.target); }, true);
+  // images that already failed before this script ran never fire an event we can hear, so check them now
+  catalog.forEach(function (g) { var i = $('img', g.el); if (i && i.complete && i.getAttribute('src') && !i.naturalWidth) thumbFallback(i); });
+
+  /* Badges: Trending (live data only) and New (automatic). Rebuilt whenever the data changes. */
+  var BADGE_ICON = {
+    trending: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12.6 1.8c.5 3.4-1 5.2-2.6 7C8.5 10.4 7 12 7 14.7a5.1 5.1 0 0 0 5 5.3 5.2 5.2 0 0 0 5.2-5.4c0-2-.8-3.4-1.8-4.7-.4 1.2-1 1.9-1.9 2.3.6-3.3-.3-6.2-1.9-10.4z"/></svg>',
+    'new': '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M10 2.5l2 5.7 5.7 2-5.7 2-2 5.8-2-5.8-5.7-2 5.7-2z"/><path fill="currentColor" d="M18.5 13l.9 2.6 2.6.9-2.6.9-.9 2.6-.9-2.6-2.6-.9 2.6-.9z"/></svg>'
+  };
+  function applyBadges() {
+    catalog.forEach(function (g) {
+      var c = g.el, old = $(':scope > .badges', c); if (old) old.remove();
+      var kinds = [];
+      if (trendingIds[g.index]) kinds.push('trending');
+      if (g.isNew) kinds.push('new');
+      if (!kinds.length) return;
+      var wrap = el('div', 'badges');
+      kinds.forEach(function (k) { wrap.appendChild(el('span', 'badge ' + k, BADGE_ICON[k] + '<span>' + (k === 'new' ? 'New' : 'Trending') + '</span>')); });
+      c.insertBefore(wrap, c.firstChild);
+    });
+  }
+  applyBadges();
 
   // Card interactions (delegated so clones work too)
   document.addEventListener('click', function (e) {
@@ -158,6 +182,7 @@
     var originalOpen = window.openGame;
     window.openGame = function (url) {
       var g = byUrl[url];
+      if (g) { ST.begin(g.title); }
       if (g) { recents = [g.title].concat(recents.filter(function (t) { return t !== g.title; })).slice(0, C.RECENT_MAX); store(RECENT_KEY, recents); }
       return originalOpen.apply(this, arguments);
     };
@@ -214,9 +239,9 @@
   }
 
   /* ------------------------------------------------------------------ views */
-  function rowSection(title, games, moreHref) {
+  function rowSection(title, games, moreHref, icon) {
     var sec = el('section', 'sec');
-    var head = el('div', 'sec-head', '<h2>' + esc(title) + '</h2>' + (moreHref ? '<a class="more" href="' + moreHref + '">View more</a>' : ''));
+    var head = el('div', 'sec-head', '<h2>' + (icon ? '<span class="h-ico ' + icon + '">' + BADGE_ICON[icon] + '</span>' : '') + esc(title) + '</h2>' + (moreHref ? '<a class="more" href="' + moreHref + '">View more</a>' : ''));
     var wrap = el('div', 'row-wrap');
     var row = el('div', 'row');
     games.forEach(function (g) { row.appendChild(cloneOf(g)); });
@@ -264,9 +289,10 @@
   function buildHome() {
     homeView.innerHTML = '';
     homeView.appendChild(buildCollage());
-    var trending = pick(C.trending).slice(0, C.ROW_MAX);
-    var secs = [rowSection('Trending', trending, '#/popular')];
-    if (newGames.length) secs.push(rowSection('New Games', newGames, '#/new'));
+    var live = liveTrending.length >= (C.stats.MIN_LIVE || 3);
+    var secs = [live ? rowSection('Trending', liveTrending.slice(0, C.ROW_MAX), '#/popular', 'trending')
+                     : rowSection('Popular', pick(C.trending).slice(0, C.ROW_MAX), '#/popular')];   // hand-picked until real play data exists
+    if (newGames.length) secs.push(rowSection('New Games', newGames.slice(0, C.ROW_MAX), '#/new', 'new'));
     activeCats.filter(function (d) { return !d.fallback; }).slice(0, C.CATEGORY_ROWS).forEach(function (d) {
       secs.push(rowSection(d.name, d.games.slice(0, C.ROW_MAX), '#/category/' + d.id));
     });
@@ -314,7 +340,8 @@
       case 'new':
         g = newGames; listPage(TITLES.new, g, '<strong>No new games right now</strong>Check back soon.'); break;
       case 'popular':
-        g = pick((C.trending || []).concat(C.popularMore || [])); listPage(TITLES.popular, g, '', g.length + ' games'); break;
+        g = liveTrending.concat(pick((C.trending || []).concat(C.popularMore || []))).filter(function (x, i, a) { return a.indexOf(x) === i; });
+        listPage(liveTrending.length ? 'Trending & Popular Games' : TITLES.popular, g, '', g.length + ' games'); break;
       case 'category':
         var d = catById[route.id]; if (!d) { location.hash = '#/'; return; }
         listPage(d.name + ' Games', d.games, '<strong>No games here yet</strong>'); break;
@@ -392,7 +419,8 @@
       '</section>' +
 
       '<section class="set-card" aria-labelledby="h-data"><h2 id="h-data">Your data</h2>' +
-        '<p class="desc">Everything is stored only in this browser.</p>' +
+        '<p class="desc">Favourites, recently played and your settings are stored only in this browser.' + (ST.enabled ? ' Trending is built from anonymous play counts (which game, how long) with nothing that identifies you.' : '') + '</p>' +
+        (ST.enabled ? '<label class="set-check"><input id="shareStats" type="checkbox"> Share anonymous play counts (powers Trending)</label>' : '') +
         '<div class="set-row"><span id="dataInfo"></span></div>' +
         '<div class="set-row btns"><button class="btn-s" id="clearRecent" type="button">Clear recently played</button><button class="btn-s" id="clearFavs" type="button">Clear favourites</button></div>' +
         '<div class="set-row"><button class="btn-s danger" id="resetSettings" type="button">Reset cloak &amp; panic settings</button></div>' +
@@ -401,6 +429,8 @@
 
     var $s = function (id) { return document.getElementById(id); };
     var sel = $s('cloakSel'), ct = $s('customTitle'), ci = $s('customIcon'), box = $s('customBox');
+    var shareStats = $s('shareStats');
+    if (shareStats) { shareStats.checked = !ST.optedOut(); shareStats.addEventListener('change', function () { ST.setOptOut(!shareStats.checked); say(shareStats.checked ? 'Sharing play counts: on.' : 'Sharing play counts: off.', false); }); }
     var pOn = $s('panicOn'), pKey = $s('panicKey'), pRe = $s('panicRedirect'), pUrl = $s('panicUrl'), pPick = $s('panicPick'), stat = $s('setStatus');
     var timer;
     function say(msg, bad) { stat.textContent = msg; stat.className = 'meta' + (bad ? ' bad' : ' good'); clearTimeout(timer); timer = setTimeout(function () { stat.textContent = ''; }, 3500); }
@@ -547,10 +577,23 @@
   else window.addEventListener('resize', layout);
 
   /* ------------------------------------------------------------------ boot */
+  var bySlug = {};
+  catalog.forEach(function (g) { var k = ST.slug(g.title); if (!bySlug[k]) bySlug[k] = g; });
   buildSidebar();
   parseHash();
   applyMode();
   layout();
   render();
   syncFavs();
+
+  // Live Trending: cached numbers show instantly, fresh ones replace them. Failure leaves the page as it is.
+  ST.get(function (rows) {
+    var ids = {}, list = [];
+    ST.trending(rows).forEach(function (r) { var g = bySlug[r.id]; if (g && !ids[g.index]) { ids[g.index] = 1; list.push(g); } });
+    var sig = function (a) { return a.map(function (g) { return g.index; }).join(','); };
+    if (sig(list) === sig(liveTrending)) return;
+    liveTrending = list; trendingIds = ids;
+    applyBadges(); homeView._cols = 0;
+    if (!searchBar.value.trim() && route.name !== 'settings') render();
+  });
 })();

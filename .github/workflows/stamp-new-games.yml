@@ -1,0 +1,24 @@
+name: Stamp new games
+# When index.html changes on main, record today's date for any game that just appeared so the site
+# can tag it "New" automatically (see tools/stamp-added.py).
+on:
+  push:
+    branches: [main]
+    paths: [index.html]
+permissions:
+  contents: write
+jobs:
+  stamp:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 tools/stamp-added.py
+      - name: Commit
+        run: |
+          if [ -n "$(git status --porcelain ubg45-added.js)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add ubg45-added.js
+            git commit -m "Stamp new games [skip ci]"
+            git push
+          fi
